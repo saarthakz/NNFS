@@ -1,5 +1,4 @@
 import { add, matrix, multiply, size, subtract } from "mathjs";
-import { Matrix } from "ml-matrix";
 
 class DenseLayer {
 
