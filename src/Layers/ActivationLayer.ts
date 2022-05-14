@@ -16,7 +16,7 @@ export class HiddenActivationLayer {
     return this.#output;
   };
 
-  backward(outputGradient: number[], learningRate: number) {
+  backward(outputGradient: number[]) {
     const inputGradient: number[] = new Array(this.#input.length);
     const derivatives = this.#derivative(this.#output);
     for (let idx = 0; idx < this.#input.length; idx++) {
@@ -26,16 +26,14 @@ export class HiddenActivationLayer {
   };
 };
 
-export class OutputActivationLayer {
+export class SoftmaxOutputActivationLayer {
 
   #input: number[] = [];
   #output: number[] = [];
   #func;
-  #derivative;
 
-  constructor(func: (input: number[]) => number[], derivative: (output: number[]) => number[]) {
+  constructor(func: (input: number[]) => number[]) {
     this.#func = func;
-    this.#derivative = derivative;
   };
 
   forward(input: number[]) {
@@ -44,12 +42,7 @@ export class OutputActivationLayer {
     return this.#output;
   };
 
-  backward(outputGradient: number[], learningRate: number) {
-    const inputGradient: number[] = new Array(this.#input.length);
-    const derivatives = this.#derivative(this.#output);
-    for (let idx = 0; idx < this.#input.length; idx++) {
-      inputGradient[idx] = outputGradient[idx] * derivatives[idx];
-    };
-    return inputGradient;
+  backward(oneHotEncoding: number[]) {
+    return this.#output.map((val, idx) => val - oneHotEncoding[idx]);
   };
 };

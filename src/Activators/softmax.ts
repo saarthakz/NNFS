@@ -6,7 +6,4 @@ export function softmax(inputs: number[]): number[] {
   return softmaxArr;
 };
 
-export function dLossWRTSoftmax(outputs: number[], oneHotEncoding: number[]): number[] {
-  return outputs.map((output, idx) => output - oneHotEncoding[idx]);
-};
 
