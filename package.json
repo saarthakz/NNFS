@@ -16,6 +16,6 @@
   },
   "dependencies": {
     "jimp": "^0.16.1",
-    "mathjs": "^10.5.3"
+    "ml-matrix": "^6.10.0"
   }
 }

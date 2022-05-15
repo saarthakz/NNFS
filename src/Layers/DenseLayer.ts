@@ -1,11 +1,12 @@
 import { add, matrix, multiply, size, subtract } from "mathjs";
+import { Matrix, MatrixColumnSelectionView } from "ml-matrix";
 
 class DenseLayer {
 
-  #input: number[] = [];
-  #output: number[] = [];
-  #weights: number[][];
-  #bias: number[];
+  #input: Matrix = new Matrix([]);
+  #output: Matrix = new Matrix([]);
+  #weights: Matrix;
+  #bias: Matrix;
   #inputSize: number;
   #outputSize: number;
 
@@ -13,45 +14,27 @@ class DenseLayer {
     this.#inputSize = inputSize;
     this.#outputSize = outputSize;
 
-    this.#weights = new Array<number[]>(outputSize)
-      .fill([])
-      .map(() => new Array<number>(inputSize)
-        .fill(0)
-        .map(() => 0.1 * Math.random()));
-
-    this.#bias = new Array(outputSize).fill(0);
+    this.#weights = Matrix.random(outputSize, inputSize, {
+      random: () => Math.random() * 0.1
+    });
+    this.#bias = Matrix.zeros(outputSize, 1);
   };
 
   forward(input: number[]) {
-    console.log(this.#weights);
 
-    this.#input = input;
-    return add(multiply(matrix(this.#weights), this.#input), this.#bias).valueOf();
+    this.#input = new Matrix([input]).transpose();
+    const weightedSum = this.#weights.mmul(this.#input);
+    this.#output = weightedSum.add(this.#bias);
+
+    return this.#output.to1DArray();
   };
 
   backward(outputGradient: number[], learningRate: number) {
 
-    let weightsGradient: number[][] = new Array<number[]>(this.#outputSize)
-      .fill([])
-      .map(() => new Array<number>(this.#inputSize)
-        .fill(0));
-
-    outputGradient.forEach((partialDerivative, idx) => this.#input.forEach((input, _idx) => weightsGradient[idx][_idx] = partialDerivative * input));
-
-    const biasGradient = outputGradient;
-
-    let weightsTranspose: number[][] = new Array<number[]>(this.#inputSize)
-      .fill([])
-      .map(() => new Array<number>(this.#outputSize)
-        .fill(0));
-
-    for (let idx = 0; idx < this.#inputSize; idx++) {
-      for (let _idx = 0; _idx < this.#outputSize; _idx++) {
-        weightsTranspose[idx][_idx] = this.#weights[_idx][idx];
-      };
-    };
-
-    const inputGradient = multiply(matrix(weightsTranspose), outputGradient);
+    const outputGradientMatrix = new Matrix([outputGradient]).transpose();
+    const weightsGradient = outputGradientMatrix.mmul(this.#input);
+    const biasGradient = outputGradientMatrix;
+    const inputGradient = this.#weights.transpose().mmul(outputGradientMatrix);
 
   };
 };
