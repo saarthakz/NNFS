@@ -17,14 +17,16 @@ class DenseLayer {
       .fill([])
       .map(() => new Array<number>(inputSize)
         .fill(0)
-        .map(() => Math.random()));
+        .map(() => 0.1 * Math.random()));
 
     this.#bias = new Array(outputSize).fill(0);
   };
 
   forward(input: number[]) {
+    console.log(this.#weights);
+
     this.#input = input;
-    return add(multiply(matrix(this.#weights), this.#input), this.#bias);
+    return add(multiply(matrix(this.#weights), this.#input), this.#bias).valueOf();
   };
 
   backward(outputGradient: number[], learningRate: number) {
