@@ -10,22 +10,37 @@ import imageToArray from "./util/imageToArray";
   const outputLayer = new DenseLayer(16, 10);
   const softmaxOutputActivationLayer = new SoftmaxOutputActivationLayer(softmax);
 
+  const imageLabel = 0;
+  const learningRate = 0.001;
   const image = await imageToArray("./Data/Training-Data/0/img_0.jpg");
-
-  const hiddenOutput = hiddenLayer.forward(image);
-  const hiddenActivationOutput = hiddenActivationLayer.forward(hiddenOutput);
-  const output = outputLayer.forward(hiddenActivationOutput);
-  const softmaxOutput = softmaxOutputActivationLayer.forward(output);
-  console.log(softmaxOutput);
-
-
   let oneHotEncoding = new Array<number>(10).fill(0);
-  oneHotEncoding[0] = 1;
+  oneHotEncoding[imageLabel] = 1;
+
+  let hiddenOutput = hiddenLayer.forward(image);
+  let hiddenActivationOutput = hiddenActivationLayer.forward(hiddenOutput);
+  let output = outputLayer.forward(hiddenActivationOutput);
+  let softmaxOutput = softmaxOutputActivationLayer.forward(output);
+  let loss = -Math.log(softmaxOutput[imageLabel]);
+  console.log("Before", loss);
+
+  let outputGradient = softmaxOutputActivationLayer.backward(oneHotEncoding); /* dL/dO*/
+  let hiddenActivationOutputGradient = outputLayer.backward(outputGradient, learningRate);
+  let hiddenOutputGradient = hiddenActivationLayer.backward(hiddenActivationOutputGradient);
+  hiddenLayer.backward(hiddenOutputGradient, learningRate);
+
+  hiddenOutput = hiddenLayer.forward(image);
+  hiddenActivationOutput = hiddenActivationLayer.forward(hiddenOutput);
+  output = outputLayer.forward(hiddenActivationOutput);
+  softmaxOutput = softmaxOutputActivationLayer.forward(output);
+  loss = -Math.log(softmaxOutput[imageLabel]);
+  console.log("After", loss);
+
   // console.log(hiddenOutput);
 
   // const hiddenActivationOutput = hiddenActivationLayer.forward(hiddenOutput);
 
 })();
+
 
 
 

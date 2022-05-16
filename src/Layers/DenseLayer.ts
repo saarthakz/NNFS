@@ -1,4 +1,3 @@
-import { add, matrix, multiply, size, subtract } from "mathjs";
 import { Matrix, MatrixColumnSelectionView } from "ml-matrix";
 
 class DenseLayer {
@@ -15,7 +14,7 @@ class DenseLayer {
     this.#outputSize = outputSize;
 
     this.#weights = Matrix.random(outputSize, inputSize, {
-      random: () => Math.random() * 0.1
+      random: () => (Math.random() * 2) - 1
     });
     this.#bias = Matrix.zeros(outputSize, 1);
   };
@@ -32,11 +31,20 @@ class DenseLayer {
   backward(outputGradient: number[], learningRate: number) {
 
     const outputGradientMatrix = new Matrix([outputGradient]).transpose();
-    const weightsGradient = outputGradientMatrix.mmul(this.#input);
+
+    const weightsGradient = outputGradientMatrix.mmul(this.#input.transpose());
     const biasGradient = outputGradientMatrix;
     const inputGradient = this.#weights.transpose().mmul(outputGradientMatrix);
 
+    // console.log("Weights before: ", this.#weights);
+
+    this.#weights.sub(Matrix.mul(weightsGradient, learningRate));
+    this.#bias.sub(Matrix.mul(biasGradient, learningRate));
+
+    // console.log("Weights after: ", this.#weights);
+    return inputGradient.to1DArray();
   };
+
 };
 
 export default DenseLayer;
